@@ -1,6 +1,7 @@
 package saythespiremod;
 
 import basemod.BaseMod;
+import basemod.devcommands.ConsoleCommand;
 import basemod.interfaces.EditKeywordsSubscriber;
 import basemod.interfaces.EditStringsSubscriber;
 import basemod.interfaces.PostInitializeSubscriber;
@@ -64,6 +65,8 @@ public class SayTheSpireMod implements
         // The information used is taken from your pom.xml file.
         BaseMod.registerModBadge(badgeTexture, info.Name, GeneralUtils.arrToString(info.Authors), info.Description,
                 null);
+
+        ConsoleCommand.addCommand("locations", LocationsCommand.class);
     }
 
     /*----------Localization----------*/
