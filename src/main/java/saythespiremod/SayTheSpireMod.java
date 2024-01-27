@@ -55,6 +55,7 @@ public class SayTheSpireMod implements
         BaseMod.subscribe(this); // This will make BaseMod trigger all the subscribers at their appropriate
                                  // times.
         logger.info(modID + " subscribed to BaseMod.");
+        Server.start();
     }
 
     @Override
