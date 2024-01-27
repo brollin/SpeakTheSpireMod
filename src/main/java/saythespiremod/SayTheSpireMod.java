@@ -31,7 +31,7 @@ public class SayTheSpireMod implements
         EditKeywordsSubscriber,
         PostInitializeSubscriber {
     public static ModInfo info;
-    public static String modID; //Edit your pom.xml to change this
+    public static String modID;
     static { loadModInfo(); }
     public static final Logger logger = LogManager.getLogger(modID); //Used to output to the console.
     private static final String resourcesFolder = "saythespiremod";
@@ -156,16 +156,6 @@ public class SayTheSpireMod implements
     public static String imagePath(String file) {
         return resourcesFolder + "/images/" + file;
     }
-    public static String characterPath(String file) {
-        return resourcesFolder + "/images/character/" + file;
-    }
-    public static String powerPath(String file) {
-        return resourcesFolder + "/images/powers/" + file;
-    }
-    public static String relicPath(String file) {
-        return resourcesFolder + "/images/relics/" + file;
-    }
-
 
     //This determines the mod's ID based on information stored by ModTheSpire.
     private static void loadModInfo() {
