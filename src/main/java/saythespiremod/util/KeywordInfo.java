@@ -11,8 +11,7 @@ public class KeywordInfo {
     }
 
     public void prep() {
-        for (int i = 0; i < NAMES.length; ++i)
-        {
+        for (int i = 0; i < NAMES.length; ++i) {
             NAMES[i] = NAMES[i].toLowerCase();
         }
     }
