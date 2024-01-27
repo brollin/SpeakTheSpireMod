@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 
-import static saythespiremod.BasicMod.*;
+import static saythespiremod.SayTheSpireMod.*;
 
 import java.util.HashMap;
 import java.util.Locale;

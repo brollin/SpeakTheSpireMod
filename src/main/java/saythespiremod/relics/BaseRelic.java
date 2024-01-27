@@ -5,7 +5,7 @@ import basemod.helpers.RelicType;
 import saythespiremod.util.GeneralUtils;
 import saythespiremod.util.TextureLoader;
 
-import static saythespiremod.BasicMod.relicPath;
+import static saythespiremod.SayTheSpireMod.relicPath;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
 import com.megacrit.cardcrawl.helpers.ImageMaster;

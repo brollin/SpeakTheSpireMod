@@ -26,7 +26,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @SpireInitializer
-public class BasicMod implements
+public class SayTheSpireMod implements
         EditStringsSubscriber,
         EditKeywordsSubscriber,
         PostInitializeSubscriber {
@@ -34,7 +34,7 @@ public class BasicMod implements
     public static String modID; //Edit your pom.xml to change this
     static { loadModInfo(); }
     public static final Logger logger = LogManager.getLogger(modID); //Used to output to the console.
-    private static final String resourcesFolder = "basicmod";
+    private static final String resourcesFolder = "saythespiremod";
 
     //This is used to prefix the IDs of various objects like cards and relics,
     //to avoid conflicts between different mods using the same name for things.
@@ -44,10 +44,10 @@ public class BasicMod implements
 
     //This will be called by ModTheSpire because of the @SpireInitializer annotation at the top of the class.
     public static void initialize() {
-        new BasicMod();
+        new SayTheSpireMod();
     }
 
-    public BasicMod() {
+    public SayTheSpireMod() {
         BaseMod.subscribe(this); //This will make BaseMod trigger all the subscribers at their appropriate times.
         logger.info(modID + " subscribed to BaseMod.");
     }
@@ -174,7 +174,7 @@ public class BasicMod implements
             if (annotationDB == null)
                 return false;
             Set<String> initializers = annotationDB.getAnnotationIndex().getOrDefault(SpireInitializer.class.getName(), Collections.emptySet());
-            return initializers.contains(BasicMod.class.getName());
+            return initializers.contains(SayTheSpireMod.class.getName());
         }).findFirst();
         if (infos.isPresent()) {
             info = infos.get();
