@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
+import com.megacrit.cardcrawl.relics.AbstractRelic;
 
 public class SayTheSpireApi {
     public static void setupRoutes(SimpleServer server) {
@@ -30,6 +31,18 @@ public class SayTheSpireApi {
             }
 
             return "{\"potions\": [" + String.join(",", potionData) + "]}";
+        });
+
+        server.createGetEndpoint("/relics", () -> {
+            ArrayList<String> relicData = new ArrayList<String>();
+            for (AbstractRelic r : AbstractDungeon.player.relics) {
+                SayTheSpireMod.logger.info("Found relic: " + r.name + " at " + r.hb.cX + ", " + r.hb.cY);
+                relicData
+                        .add("{\"name\": \"" + r.name + "\", \"x\": " + r.hb.cX + ", \"y\": " + r.hb.cY
+                                + "}");
+            }
+
+            return "{\"relics\": [" + String.join(",", relicData) + "]}";
         });
     }
 }
