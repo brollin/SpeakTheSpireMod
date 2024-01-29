@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
@@ -29,12 +30,8 @@
     <!-- If you really want to use them, you'll need to "escape" them by putting another one in front, like \\ -->
     <description>Control Slay the Spire with voice commands.</description>
 
-    <!--You shouldn't need to change anything below this point, but feel free to look at it.-->
-    <!--You'll get a warning regarding these when you package your mod, but don't worry, it's just set up like this for convenience.-->
-    <!--Technically these should be changed individually, but this allows you to just set it in one place.-->
-    <!--Absolutely a no-go for larger projects, but for a personal mod it's fine.-->
-    <groupId>${modID}</groupId>
-    <artifactId>${modID}</artifactId>
+    <groupId>SayTheSpire</groupId>
+    <artifactId>SayTheSpire</artifactId>
 
     <dependencies>
         <dependency>
@@ -42,30 +39,33 @@
             <artifactId>slaythespire</artifactId>
             <version>${SlayTheSpire.version}</version>
             <scope>system</scope>
-            <systemPath>${steam.path}${sts.path}</systemPath>
+            <systemPath>${user.home}/Library/Application Support/Steam/steamapps${sts.path}</systemPath>
         </dependency>
         <dependency>
             <groupId>com.evacipated.cardcrawl</groupId>
             <artifactId>modthespire</artifactId>
             <version>${ModTheSpire.version}</version>
             <scope>system</scope>
-            <systemPath>${steam.path}/workshop/content/646570/1605060445/ModTheSpire.jar</systemPath>
+            <systemPath>${user.home}/Library/Application Support/Steam/steamapps/workshop/content/646570/1605060445/ModTheSpire.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>basemod</groupId>
             <artifactId>basemod</artifactId>
-            <!--Don't worry about these version numbers, they're only used for display
-                in the left sidebar under External Libraries and don't need to be accurate.-->
             <version>5.44.0</version>
             <scope>system</scope>
-            <systemPath>${steam.path}/workshop/content/646570/1605833019/BaseMod.jar</systemPath>
+            <systemPath>${user.home}/Library/Application Support/Steam/steamapps/workshop/content/646570/1605833019/BaseMod.jar</systemPath>
         </dependency>
         <dependency>
             <groupId>com.evacipated.cardcrawl.mod</groupId>
             <artifactId>StSLib</artifactId>
             <version>2.4.0</version>
             <scope>system</scope>
-            <systemPath>${steam.path}/workshop/content/646570/1609158507/StSLib.jar</systemPath>
+            <systemPath>${user.home}/Library/Application Support/Steam/steamapps/workshop/content/646570/1609158507/StSLib.jar</systemPath>
+        </dependency>
+        <dependency>
+            <groupId>io.javalin</groupId>
+            <artifactId>javalin</artifactId>
+            <version>4.6.8</version>
         </dependency>
     </dependencies>
 
@@ -134,7 +134,7 @@
                             <target>
                                 <!--This puts a copy of your mod's jar file into the SlayTheSpire mods folder so it will be loaded.-->
                                 <!--On mac, it will be copied to another location. See further below.-->
-                                <copy file="target/${project.artifactId}.jar" tofile="${steam.path}/common/SlayTheSpire/mods/${project.artifactId}.jar"/>
+                                <copy file="target/${project.artifactId}.jar" tofile="${user.home}/Library/Application Support/Steam/steamapps/common/SlayTheSpire/mods/${project.artifactId}.jar"/>
                             </target>
                         </configuration>
                         <goals>
@@ -149,7 +149,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>false</filtering>
-                <excludes> <!-- These files won't not be filtered. -->
+                <excludes>                    <!-- These files won't not be filtered. -->
                     <exclude>ModTheSpire.json</exclude>
                     <exclude>**/*.json</exclude>
                 </excludes>
@@ -157,7 +157,7 @@
             <resource>
                 <directory>src/main/resources</directory>
                 <filtering>true</filtering>
-                <includes> <!-- These files will be filtered. -->
+                <includes>                    <!-- These files will be filtered. -->
                     <include>**/*.json</include>
                 </includes>
             </resource>
@@ -193,6 +193,33 @@
                 <plugins>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-shade-plugin</artifactId>
+                        <version>3.5.1</version>
+                        <configuration>
+                            <artifactSet>
+                                <!-- <includes>
+                                    <include>io.javalin:javalin</include>
+                                </includes> -->
+                                <!-- <excludes>
+                                    <exclude>com.megacrit.cardcrawl:slaythespire</exclude>
+                                    <exclude>com.evacipated.cardcrawl.mod:StSLib</exclude>
+                                    <exclude>basemod:basemod</exclude>
+                                    <exclude>com.evacipated.cardcrawl:modthespire</exclude>
+                                </excludes> -->
+                            </artifactSet>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>shade</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-antrun-plugin</artifactId>
                         <version>3.1.0</version>
                         <executions>
@@ -201,7 +228,7 @@
                                 <configuration>
                                     <target>
                                         <!-- This moves your mod into a common folder where all mods you make can go. -->
-                                        <copy file="target/${project.artifactId}.jar" tofile="${steam.path}/common/SlayTheSpire/SlayTheSpire.app/Contents/Resources/mods/${project.artifactId}.jar"/>
+                                        <copy file="target/${project.artifactId}.jar" tofile="${user.home}/Library/Application Support/Steam/steamapps/common/SlayTheSpire/SlayTheSpire.app/Contents/Resources/mods/${project.artifactId}.jar"/>
                                     </target>
                                 </configuration>
                                 <goals>
