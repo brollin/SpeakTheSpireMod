@@ -9,11 +9,13 @@ import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
+import com.megacrit.cardcrawl.rewards.RewardItem;
 
 import saythespiremod.serializers.MonsterSerializer;
 import saythespiremod.serializers.PlayerSerializer;
 import saythespiremod.serializers.PotionSerializer;
 import saythespiremod.serializers.RelicSerializer;
+import saythespiremod.serializers.RewardSerializer;
 
 public class SayTheSpireApi {
     public static void setupRoutes(SimpleServer server) {
@@ -48,6 +50,24 @@ public class SayTheSpireApi {
             }
             SayTheSpireMod.logger.debug("relic json: " + relicsJson.toJson(OutputType.json));
             return relicsJson.toJson(OutputType.json);
+        });
+
+        server.createGetEndpoint("/rewards", (Map<String, List<String>> requestParameters) -> {
+            JsonValue rewardsJson = new JsonValue(JsonValue.ValueType.array);
+            for (RewardItem reward : AbstractDungeon.combatRewardScreen.rewards) {
+                rewardsJson.addChild(RewardSerializer.toJson(reward));
+            }
+            SayTheSpireMod.logger.debug("reward json: " + rewardsJson.toJson(OutputType.json));
+            return rewardsJson.toJson(OutputType.json);
+        });
+
+        server.createGetEndpoint("/bossRelics", (Map<String, List<String>> requestParameters) -> {
+            JsonValue bossRelicsJson = new JsonValue(JsonValue.ValueType.array);
+            for (AbstractRelic bossRelic : AbstractDungeon.bossRelicScreen.relics) {
+                bossRelicsJson.addChild(RelicSerializer.toJson(bossRelic));
+            }
+            SayTheSpireMod.logger.debug("bossRelic json: " + bossRelicsJson.toJson(OutputType.json));
+            return bossRelicsJson.toJson(OutputType.json);
         });
 
         server.createPostEndpoint("/usePotion", (Map<String, List<String>> requestParameters) -> {

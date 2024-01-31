@@ -69,7 +69,7 @@ public class SimpleServer {
                         try {
                             responseBody = handler.handle(requestParameters);
                         } catch (final Exception ex) {
-                            this.logger.error("SimpleServer caught error: " + ex.getMessage());
+                            this.logger.error("SimpleServer caught error: " + ex.toString());
                             responseBody = "{\"error\": \"there was an error, check log\"}";
                         }
 
