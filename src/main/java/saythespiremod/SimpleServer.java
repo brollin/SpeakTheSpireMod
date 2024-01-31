@@ -14,6 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.logging.log4j.Logger;
+
 public class SimpleServer {
     private static final String HOSTNAME = "localhost";
     private static final int PORT = 10463;
@@ -30,16 +32,19 @@ public class SimpleServer {
     private static final int NO_RESPONSE_LENGTH = -1;
 
     private static final String METHOD_GET = "GET";
+    private static final String METHOD_POST = "POST";
     private static final String METHOD_OPTIONS = "OPTIONS";
-    private static final String ALLOWED_METHODS = METHOD_GET + "," + METHOD_OPTIONS;
 
     public HttpServer httpServer = null;
+    public Logger logger = null;
 
     public interface EndPointHandler {
-        String handle();
+        String handle(Map<String, List<String>> requestParameters);
     }
 
-    public SimpleServer() {
+    public SimpleServer(Logger logger) {
+        this.logger = logger;
+
         try {
             this.httpServer = HttpServer.create(new InetSocketAddress(HOSTNAME, PORT), BACKLOG);
         } catch (final IOException ex) {
@@ -58,11 +63,15 @@ public class SimpleServer {
                 final String requestMethod = he.getRequestMethod().toUpperCase();
                 switch (requestMethod) {
                     case METHOD_GET:
-                        // final Map<String, List<String>> requestParameters =
-                        // getRequestParameters(he.getRequestURI());
-                        // do something with the request parameters
+                        final Map<String, List<String>> requestParameters = getRequestParameters(he.getRequestURI());
 
-                        String responseBody = handler.handle();
+                        String responseBody = "";
+                        try {
+                            responseBody = handler.handle(requestParameters);
+                        } catch (final Exception ex) {
+                            this.logger.error("SimpleServer caught error: " + ex.getMessage());
+                            responseBody = "{\"error\": \"there was an error, check log\"}";
+                        }
 
                         headers.set(HEADER_CONTENT_TYPE, String.format("application/json; charset=%s", CHARSET));
                         final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
@@ -70,11 +79,48 @@ public class SimpleServer {
                         he.getResponseBody().write(rawResponseBody);
                         break;
                     case METHOD_OPTIONS:
-                        headers.set(HEADER_ALLOW, ALLOWED_METHODS);
+                        headers.set(HEADER_ALLOW, METHOD_GET + "," + METHOD_OPTIONS);
                         he.sendResponseHeaders(STATUS_OK, NO_RESPONSE_LENGTH);
                         break;
                     default:
-                        headers.set(HEADER_ALLOW, ALLOWED_METHODS);
+                        headers.set(HEADER_ALLOW, METHOD_GET + "," + METHOD_OPTIONS);
+                        he.sendResponseHeaders(STATUS_METHOD_NOT_ALLOWED, NO_RESPONSE_LENGTH);
+                        break;
+                }
+            } finally {
+                he.close();
+            }
+        });
+    }
+
+    public void createPostEndpoint(String path, EndPointHandler handler) {
+        this.httpServer.createContext(path, he -> {
+            try {
+                final Headers headers = he.getResponseHeaders();
+                final String requestMethod = he.getRequestMethod().toUpperCase();
+                switch (requestMethod) {
+                    case METHOD_POST:
+                        final Map<String, List<String>> requestParameters = getRequestParameters(he.getRequestURI());
+
+                        String responseBody = "";
+                        try {
+                            responseBody = handler.handle(requestParameters);
+                        } catch (final Exception ex) {
+                            this.logger.error("SimpleServer caught error: " + ex.getMessage());
+                            responseBody = "{\"error\": \"there was an error, check log\"}";
+                        }
+
+                        headers.set(HEADER_CONTENT_TYPE, String.format("application/json; charset=%s", CHARSET));
+                        final byte[] rawResponseBody = responseBody.getBytes(CHARSET);
+                        he.sendResponseHeaders(STATUS_OK, rawResponseBody.length);
+                        he.getResponseBody().write(rawResponseBody);
+                        break;
+                    case METHOD_OPTIONS:
+                        headers.set(HEADER_ALLOW, METHOD_POST + "," + METHOD_OPTIONS);
+                        he.sendResponseHeaders(STATUS_OK, NO_RESPONSE_LENGTH);
+                        break;
+                    default:
+                        headers.set(HEADER_ALLOW, METHOD_POST + "," + METHOD_OPTIONS);
                         he.sendResponseHeaders(STATUS_METHOD_NOT_ALLOWED, NO_RESPONSE_LENGTH);
                         break;
                 }

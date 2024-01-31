@@ -1,48 +1,58 @@
 package saythespiremod;
 
-import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
+import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 
+import saythespiremod.serializers.MonsterSerializer;
+import saythespiremod.serializers.PotionSerializer;
+import saythespiremod.serializers.RelicSerializer;
+
 public class SayTheSpireApi {
     public static void setupRoutes(SimpleServer server) {
-        server.createGetEndpoint("/monsters", () -> {
-            ArrayList<String> monsterData = new ArrayList<String>();
-            for (AbstractMonster m : AbstractDungeon.getCurrRoom().monsters.monsters) {
-                SayTheSpireMod.logger.info("Found monster: " + m.name + " at " + m.hb.cX + ", " + m.hb.cY);
-                monsterData
-                        .add("{\"name\": \"" + m.name + "\", \"x\": " + m.hb.cX + ", \"y\": " + m.hb.cY
-                                + "}");
+        server.createGetEndpoint("/monsters", (Map<String, List<String>> requestParameters) -> {
+            JsonValue monstersJson = new JsonValue(JsonValue.ValueType.array);
+            for (AbstractMonster monster : AbstractDungeon.getCurrRoom().monsters.monsters) {
+                monstersJson.addChild(MonsterSerializer.toJson(monster));
             }
-            String responseBody = "{\"monsters\": [" + String.join(",", monsterData) + "]}";
-            return responseBody;
+            SayTheSpireMod.logger.debug("monster json: " + monstersJson.toJson(OutputType.json));
+            return monstersJson.toJson(OutputType.json);
         });
 
-        server.createGetEndpoint("/potions", () -> {
-            ArrayList<String> potionData = new ArrayList<String>();
+        server.createGetEndpoint("/potions", (Map<String, List<String>> requestParameters) -> {
+            JsonValue potionsJson = new JsonValue(JsonValue.ValueType.array);
+            for (AbstractPotion potion : AbstractDungeon.player.potions) {
+                potionsJson.addChild(PotionSerializer.toJson(potion));
+            }
+            SayTheSpireMod.logger.debug("potion json: " + potionsJson.toJson(OutputType.json));
+            return potionsJson.toJson(OutputType.json);
+        });
+
+        server.createGetEndpoint("/relics", (Map<String, List<String>> requestParameters) -> {
+            JsonValue relicsJson = new JsonValue(JsonValue.ValueType.array);
+            for (AbstractRelic relic : AbstractDungeon.player.relics) {
+                relicsJson.addChild(RelicSerializer.toJson(relic));
+            }
+            SayTheSpireMod.logger.debug("relic json: " + relicsJson.toJson(OutputType.json));
+            return relicsJson.toJson(OutputType.json);
+        });
+
+        server.createPostEndpoint("/usePotion", (Map<String, List<String>> requestParameters) -> {
+            String potionName = requestParameters.get("potionName").get(0);
             for (AbstractPotion p : AbstractDungeon.player.potions) {
-                SayTheSpireMod.logger.info("Found potion: " + p.name + " at " + p.hb.cX + ", " + p.hb.cY);
-                potionData
-                        .add("{\"name\": \"" + p.name + "\", \"x\": " + p.hb.cX + ", \"y\": " + p.hb.cY
-                                + "}");
+                if (p.name.equals(potionName) && p.canUse()) {
+                    p.use(AbstractDungeon.player);
+                    AbstractDungeon.topPanel.destroyPotion(p.slot);
+                    return "Used potion " + potionName;
+                }
             }
-
-            return "{\"potions\": [" + String.join(",", potionData) + "]}";
-        });
-
-        server.createGetEndpoint("/relics", () -> {
-            ArrayList<String> relicData = new ArrayList<String>();
-            for (AbstractRelic r : AbstractDungeon.player.relics) {
-                SayTheSpireMod.logger.info("Found relic: " + r.name + " at " + r.hb.cX + ", " + r.hb.cY);
-                relicData
-                        .add("{\"name\": \"" + r.name + "\", \"x\": " + r.hb.cX + ", \"y\": " + r.hb.cY
-                                + "}");
-            }
-
-            return "{\"relics\": [" + String.join(",", relicData) + "]}";
+            return "Potion not found";
         });
     }
 }
