@@ -11,11 +11,18 @@ import com.megacrit.cardcrawl.potions.AbstractPotion;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 
 import saythespiremod.serializers.MonsterSerializer;
+import saythespiremod.serializers.PlayerSerializer;
 import saythespiremod.serializers.PotionSerializer;
 import saythespiremod.serializers.RelicSerializer;
 
 public class SayTheSpireApi {
     public static void setupRoutes(SimpleServer server) {
+        server.createGetEndpoint("/player", (Map<String, List<String>> requestParameters) -> {
+            JsonValue playerJson = PlayerSerializer.toJson(AbstractDungeon.player);
+            SayTheSpireMod.logger.debug("player json: " + playerJson.toJson(OutputType.json));
+            return playerJson.toJson(OutputType.json);
+        });
+
         server.createGetEndpoint("/monsters", (Map<String, List<String>> requestParameters) -> {
             JsonValue monstersJson = new JsonValue(JsonValue.ValueType.array);
             for (AbstractMonster monster : AbstractDungeon.getCurrRoom().monsters.monsters) {
@@ -44,15 +51,26 @@ public class SayTheSpireApi {
         });
 
         server.createPostEndpoint("/usePotion", (Map<String, List<String>> requestParameters) -> {
-            String potionName = requestParameters.get("potionName").get(0);
-            for (AbstractPotion p : AbstractDungeon.player.potions) {
-                if (p.name.equals(potionName) && p.canUse()) {
-                    p.use(AbstractDungeon.player);
-                    AbstractDungeon.topPanel.destroyPotion(p.slot);
-                    return "Used potion " + potionName;
-                }
+            int potionIndex = Integer.parseInt(requestParameters.get("index").get(0));
+            String operation = requestParameters.get("operation").get(0);
+            AbstractPotion potion = AbstractDungeon.player.potions.get(potionIndex);
+
+            if (potion == null) {
+                return "Potion not found";
             }
-            return "Potion not found";
+
+            if (operation.equals("use") && potion.canUse()) {
+                potion.use(AbstractDungeon.player);
+                AbstractDungeon.topPanel.destroyPotion(potion.slot);
+                return "Used potion " + potion.name;
+            }
+
+            if (operation.equals("discard") && potion.canDiscard()) {
+                AbstractDungeon.topPanel.destroyPotion(potion.slot);
+                return "Discarded potion " + potion.name;
+            }
+
+            return "Potion not used or discarded";
         });
     }
 }
