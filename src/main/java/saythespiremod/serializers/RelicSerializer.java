@@ -1,5 +1,7 @@
 package saythespiremod.serializers;
 
+import java.util.ArrayList;
+
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonValue.ValueType;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
@@ -11,5 +13,13 @@ public class RelicSerializer {
         relicJson.addChild("x", new JsonValue(relic.hb.cX));
         relicJson.addChild("y", new JsonValue(relic.hb.cY));
         return relicJson;
+    }
+
+    public static JsonValue toJson(ArrayList<AbstractRelic> relics) {
+        JsonValue relicsJson = new JsonValue(ValueType.array);
+        for (AbstractRelic relic : relics) {
+            relicsJson.addChild(RelicSerializer.toJson(relic));
+        }
+        return relicsJson;
     }
 }

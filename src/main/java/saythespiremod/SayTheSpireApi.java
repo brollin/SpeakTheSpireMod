@@ -28,6 +28,7 @@ import saythespiremod.serializers.PlayerSerializer;
 import saythespiremod.serializers.PotionSerializer;
 import saythespiremod.serializers.RelicSerializer;
 import saythespiremod.serializers.RewardSerializer;
+import saythespiremod.serializers.ShopScreenSerializer;
 
 public class SayTheSpireApi {
     public static void setupRoutes(SimpleServer server) {
@@ -109,29 +110,10 @@ public class SayTheSpireApi {
             return potionUiJson.toJson(OutputType.json);
         });
 
-        server.createPostEndpoint("/usePotion", (Map<String, List<String>> requestParameters) -> {
-            String operation = requestParameters.get("operation").get(0);
-
-            if (AbstractDungeon.topPanel.potionUi.isHidden) {
-                return "No potion is selected yet";
-            }
-
-            if (operation.equals("use")) {
-                // TODO: not quite working
-                Hitbox hb = ReflectionHacks.getPrivate(AbstractDungeon.topPanel.potionUi, PotionPopUp.class,
-                        "hbTop");
-                hb.clicked = true;
-                return "Used potion ";
-            }
-
-            if (operation.equals("discard")) {
-                Hitbox hb = ReflectionHacks.getPrivate(AbstractDungeon.topPanel.potionUi, PotionPopUp.class,
-                        "hbBot");
-                hb.clicked = true;
-                return "Discarded potion ";
-            }
-
-            return "Potion not used or discarded";
+        server.createGetEndpoint("/shop", (Map<String, List<String>> requestParameters) -> {
+            JsonValue shopJson = ShopScreenSerializer.toJson(AbstractDungeon.shopScreen);
+            SayTheSpireMod.logger.debug("shop json: " + shopJson.toJson(OutputType.json));
+            return shopJson.toJson(OutputType.json);
         });
 
         server.createPostEndpoint("/navigate", (Map<String, List<String>> requestParameters) -> {
