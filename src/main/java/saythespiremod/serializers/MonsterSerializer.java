@@ -10,6 +10,7 @@ public class MonsterSerializer {
         monsterJson.addChild("name", new JsonValue(monster.name));
         monsterJson.addChild("x", new JsonValue(monster.hb.cX));
         monsterJson.addChild("y", new JsonValue(monster.hb.cY));
+        monsterJson.addChild("currentHealth", new JsonValue(monster.currentHealth));
         return monsterJson;
     }
 }
