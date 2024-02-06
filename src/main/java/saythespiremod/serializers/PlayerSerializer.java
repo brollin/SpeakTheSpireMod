@@ -9,6 +9,7 @@ public class PlayerSerializer {
         JsonValue playerJson = new JsonValue(ValueType.object);
         playerJson.addChild("x", new JsonValue(player.hb.cX));
         playerJson.addChild("y", new JsonValue(player.hb.cY));
+        playerJson.addChild("orbs", OrbSerializer.toJson(player.orbs));
         return playerJson;
     }
 }

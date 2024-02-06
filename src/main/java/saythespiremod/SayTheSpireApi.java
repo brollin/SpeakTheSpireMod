@@ -1,5 +1,7 @@
 package saythespiremod;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,12 +15,14 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.rewards.RewardItem;
+import com.megacrit.cardcrawl.screens.GameOverScreen;
 import com.megacrit.cardcrawl.screens.charSelect.CharacterOption;
 import com.megacrit.cardcrawl.screens.mainMenu.MainMenuScreen;
 import com.megacrit.cardcrawl.screens.mainMenu.MenuButton;
 import com.megacrit.cardcrawl.screens.options.AbandonRunButton;
 import com.megacrit.cardcrawl.screens.options.ExitGameButton;
 import com.megacrit.cardcrawl.screens.options.OptionsPanel;
+import com.megacrit.cardcrawl.ui.buttons.ReturnToMenuButton;
 import com.megacrit.cardcrawl.ui.panels.PotionPopUp;
 
 import basemod.ReflectionHacks;
@@ -196,6 +200,19 @@ public class SayTheSpireApi {
                         return "No known popup showing with no button";
                     }
                     return "Did not find navigation item";
+                } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.VICTORY
+                        || AbstractDungeon.screen == AbstractDungeon.CurrentScreen.DEATH) {
+                    GameOverScreen gameOverScreen = AbstractDungeon.screen == AbstractDungeon.CurrentScreen.VICTORY
+                            ? AbstractDungeon.victoryScreen
+                            : AbstractDungeon.deathScreen;
+                    if (gameOverScreenContinueCommands.contains(navItem)) {
+                        ReturnToMenuButton returnButton = ReflectionHacks.getPrivate(gameOverScreen,
+                                GameOverScreen.class,
+                                "returnButton");
+                        returnButton.hb.clicked = true;
+                        return "";
+                    }
+                    return "Did not find navigation item";
                 }
             }
 
@@ -209,11 +226,14 @@ public class SayTheSpireApi {
     }
 
     // TODO: move this to a better place
+    static final List<String> gameOverScreenContinueCommands = new ArrayList<>(
+            Arrays.asList("continue", "proceed", "mainMenu"));
     static final Map<String, MenuButton.ClickResult> navItemToClickResult = new HashMap<>();
     static final Map<String, Integer> navItemToPanelIndex = new HashMap<>();
     static {
         navItemToClickResult.put("play", MenuButton.ClickResult.PLAY);
         navItemToClickResult.put("resume", MenuButton.ClickResult.RESUME_GAME);
+        navItemToClickResult.put("continue", MenuButton.ClickResult.RESUME_GAME);
         navItemToClickResult.put("abandon", MenuButton.ClickResult.ABANDON_RUN);
         navItemToClickResult.put("compendium", MenuButton.ClickResult.INFO);
         navItemToClickResult.put("statistics", MenuButton.ClickResult.STAT);
