@@ -15,6 +15,7 @@ import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
 import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.rewards.RewardItem;
+import com.megacrit.cardcrawl.screens.CardRewardScreen;
 import com.megacrit.cardcrawl.screens.GameOverScreen;
 import com.megacrit.cardcrawl.screens.charSelect.CharacterOption;
 import com.megacrit.cardcrawl.screens.mainMenu.MainMenuScreen;
@@ -22,7 +23,14 @@ import com.megacrit.cardcrawl.screens.mainMenu.MenuButton;
 import com.megacrit.cardcrawl.screens.options.AbandonRunButton;
 import com.megacrit.cardcrawl.screens.options.ExitGameButton;
 import com.megacrit.cardcrawl.screens.options.OptionsPanel;
+import com.megacrit.cardcrawl.screens.select.HandCardSelectScreen;
+import com.megacrit.cardcrawl.ui.buttons.CancelButton;
+import com.megacrit.cardcrawl.ui.buttons.CardSelectConfirmButton;
+import com.megacrit.cardcrawl.ui.buttons.GridSelectConfirmButton;
+import com.megacrit.cardcrawl.ui.buttons.PeekButton;
+import com.megacrit.cardcrawl.ui.buttons.ProceedButton;
 import com.megacrit.cardcrawl.ui.buttons.ReturnToMenuButton;
+import com.megacrit.cardcrawl.ui.buttons.SkipCardButton;
 import com.megacrit.cardcrawl.ui.panels.PotionPopUp;
 
 import basemod.ReflectionHacks;
@@ -162,6 +170,11 @@ public class SayTheSpireApi {
                             return "";
                         }
                     }
+                } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.RUN_HISTORY) {
+                    if (navItem.equals("return") || navItem.equals("back")) {
+                        CardCrawlGame.mainMenuScreen.runHistoryScreen.button.hb.clicked = true;
+                        return "";
+                    }
                 }
             } else if (CardCrawlGame.mode == CardCrawlGame.GameMode.GAMEPLAY) {
                 if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.SETTINGS) {
@@ -213,16 +226,141 @@ public class SayTheSpireApi {
                         return "";
                     }
                     return "Did not find navigation item";
-                }
-            }
+                } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.HAND_SELECT) {
+                    if (navItem.equals("peek")) {
+                        PeekButton peekButton = ReflectionHacks.getPrivate(AbstractDungeon.handCardSelectScreen,
+                                HandCardSelectScreen.class,
+                                "peekButton");
+                        boolean isHidden = ReflectionHacks.getPrivate(peekButton, PeekButton.class,
+                                "isHidden");
+                        if (isHidden) {
+                            return "Peek button is hidden";
+                        }
 
-            if (navItem.equals("reset")) {
-                AbstractDungeon.player.isInKeyboardMode = false;
-                return "";
+                        peekButton.hb.clicked = true;
+                        return "";
+                    } else if (navItem.equals("confirm")) {
+                        CardSelectConfirmButton button = AbstractDungeon.handCardSelectScreen.button;
+                        boolean isHidden = ReflectionHacks.getPrivate(button, CardSelectConfirmButton.class,
+                                "isHidden");
+                        boolean isDisabled = button.isDisabled;
+                        if (isHidden || isDisabled) {
+                            return "Confirm button is hidden or disabled";
+                        }
+
+                        AbstractDungeon.handCardSelectScreen.button.hb.clicked = true;
+                        return "";
+                    }
+
+                    return "Did not find navigation item";
+                } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.GRID) {
+                    if (navItem.equals("confirm")) {
+                        GridSelectConfirmButton confirmButton = AbstractDungeon.gridSelectScreen.confirmButton;
+                        boolean isHidden = ReflectionHacks.getPrivate(confirmButton, GridSelectConfirmButton.class,
+                                "isHidden");
+                        boolean isDisabled = confirmButton.isDisabled;
+                        if (isHidden || isDisabled) {
+                            return "Proceed button is hidden or disabled";
+                        }
+
+                        confirmButton.hb.clicked = true;
+                        return "";
+                    } else if (navItem.equals("cancel") || navItem.equals("return")) {
+                        return clickOverlayCancelButton();
+                    } else if (navItem.equals("peek")) {
+                        PeekButton peekButton = AbstractDungeon.gridSelectScreen.peekButton;
+                        boolean isHidden = ReflectionHacks.getPrivate(peekButton, PeekButton.class, "isHidden");
+                        if (isHidden) {
+                            return "Peek button is hidden";
+                        }
+
+                        peekButton.hb.clicked = true;
+                        return "";
+                    }
+
+                    return "Did not find navigation item";
+                } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.CARD_REWARD) {
+                    if (navItem.equals("skip")) {
+                        boolean skippable = ReflectionHacks.getPrivate(AbstractDungeon.cardRewardScreen,
+                                CardRewardScreen.class,
+                                "skippable");
+                        if (!skippable) {
+                            return "Card reward screen is not skippable";
+                        }
+
+                        SkipCardButton skipButton = ReflectionHacks.getPrivate(AbstractDungeon.cardRewardScreen,
+                                CardRewardScreen.class,
+                                "skipButton");
+                        skipButton.hb.clicked = true;
+                        return "";
+                    } else if (navItem.equals("maxHP")) {
+                        // TODO: implement singing bowl
+                        return "Singing bowl not implemented";
+                    } else if (navItem.equals("peek")) {
+                        PeekButton peekButton = ReflectionHacks.getPrivate(AbstractDungeon.cardRewardScreen,
+                                CardRewardScreen.class,
+                                "peekButton");
+                        boolean isHidden = ReflectionHacks.getPrivate(peekButton, PeekButton.class, "isHidden");
+                        if (isHidden) {
+                            return "Peek button is hidden";
+                        }
+
+                        peekButton.hb.clicked = true;
+                        return "";
+                    }
+
+                    return "Did not find navigation item";
+                } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.COMBAT_REWARD) {
+                    if (navItem.equals("skip") || navItem.equals("proceed")) {
+                        return clickOverlayProceedButton();
+                    }
+                    return "Did not find navigation item";
+                }
+
+                if (navItem.equals("reset")) {
+                    AbstractDungeon.player.isInKeyboardMode = false;
+                    return "";
+                } else if (navItem.equals("proceed") || navItem.equals("skip")) {
+                    return clickOverlayProceedButton();
+                } else if (navItem.equals("cancel") || navItem.equals("return")) {
+                    return clickOverlayCancelButton();
+                }
             }
 
             return "Did not find navigation item";
         });
+    }
+
+    private static String clickOverlayProceedButton() {
+        ProceedButton proceedButton = AbstractDungeon.overlayMenu.proceedButton;
+        boolean isHidden = ReflectionHacks.getPrivate(proceedButton, ProceedButton.class, "isHidden");
+        if (isHidden) {
+            return "Proceed button is hidden";
+        }
+
+        Hitbox hb = ReflectionHacks.getPrivate(proceedButton, ProceedButton.class, "hb");
+        hb.clicked = true;
+        return "";
+    }
+
+    private static String clickOverlayCancelButton() {
+        CancelButton cancelButton = AbstractDungeon.overlayMenu.cancelButton;
+        boolean isHidden = ReflectionHacks.getPrivate(cancelButton, CancelButton.class, "isHidden");
+        if (isHidden) {
+            return "Cancel button is hidden";
+        }
+
+        cancelButton.hb.clicked = true;
+        return "";
+    }
+
+    private static void clickMainMenuButton(MenuButton.ClickResult result) {
+        for (MenuButton button : CardCrawlGame.mainMenuScreen.buttons) {
+            if (button.result == result) {
+                button.buttonEffect();
+                break;
+            }
+        }
     }
 
     // TODO: move this to a better place
@@ -254,14 +392,5 @@ public class SayTheSpireApi {
         navItemToPanelIndex.put("gameSettings", 0);
         navItemToPanelIndex.put("inputSettings", 1);
         navItemToPanelIndex.put("credits", 2);
-    }
-
-    public static void clickMainMenuButton(MenuButton.ClickResult result) {
-        for (MenuButton button : CardCrawlGame.mainMenuScreen.buttons) {
-            if (button.result == result) {
-                button.buttonEffect();
-                break;
-            }
-        }
     }
 }
