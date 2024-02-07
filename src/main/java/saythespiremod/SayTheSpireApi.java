@@ -317,7 +317,7 @@ public class SayTheSpireApi {
                     return "Did not find navigation item";
                 }
 
-                if (navItem.equals("reset")) {
+                if (navItem.equals("release")) {
                     AbstractDungeon.player.isInKeyboardMode = false;
                     return "";
                 } else if (navItem.equals("proceed") || navItem.equals("skip")) {
