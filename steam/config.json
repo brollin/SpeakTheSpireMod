@@ -1,0 +1,7 @@
+{
+  "title": "Say the Spire",
+  "description": "Voice commands for Slay the Spire",
+  "visibility": "public",
+  "changeNote": "v0.1.0: beta release",
+  "tags": ["voice", "voice commands", "speech", "talon"]
+}
