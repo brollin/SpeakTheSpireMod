@@ -1,4 +1,4 @@
-package saythespiremod.util;
+package speakthespiremod.util;
 
 import com.megacrit.cardcrawl.cards.AbstractCard;
 

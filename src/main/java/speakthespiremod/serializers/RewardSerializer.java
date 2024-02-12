@@ -1,4 +1,4 @@
-package saythespiremod.serializers;
+package speakthespiremod.serializers;
 
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonValue.ValueType;

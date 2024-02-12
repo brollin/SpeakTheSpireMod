@@ -1,4 +1,4 @@
-package saythespiremod.util;
+package speakthespiremod.util;
 
 public class GeneralUtils {
     public static String arrToString(Object[] arr) {

@@ -1,4 +1,4 @@
-package saythespiremod.util;
+package speakthespiremod.util;
 
 public class KeywordInfo {
     public String ID = "";

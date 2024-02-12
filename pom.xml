@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
-        <modID>SayTheSpire</modID>
+        <modID>SpeakTheSpire</modID>
         <author>brollin</author>
 
         <!-- Change the path for your system to match your Steam installation. -->
@@ -24,8 +24,8 @@
     </properties>
 
     <!-- This information will be displayed in ModTheSpire, the modded launcher. -->
-    <name>Say the Spire</name>
-    <version>0.1.0</version>
+    <name>Speak the Spire</name>
+    <version>0.2.0</version>
     <!-- Avoid using \ in this description, as they can cause the description to fail to load. -->
     <!-- If you really want to use them, you'll need to "escape" them by putting another one in front, like \\ -->
     <description>Control Slay the Spire with voice commands.</description>
@@ -34,8 +34,8 @@
     <!--You'll get a warning regarding these when you package your mod, but don't worry, it's just set up like this for convenience.-->
     <!--Technically these should be changed individually, but this allows you to just set it in one place.-->
     <!--Absolutely a no-go for larger projects, but for a personal mod it's fine.-->
-    <groupId>SayTheSpire</groupId>
-    <artifactId>SayTheSpire</artifactId>
+    <groupId>SpeakTheSpire</groupId>
+    <artifactId>SpeakTheSpire</artifactId>
 
     <dependencies>
         <dependency>

@@ -1,4 +1,4 @@
-package saythespiremod.serializers;
+package speakthespiremod.serializers;
 
 import java.util.ArrayList;
 

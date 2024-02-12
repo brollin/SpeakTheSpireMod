@@ -1,13 +1,13 @@
-package saythespiremod;
+package speakthespiremod;
 
 import basemod.BaseMod;
 import basemod.devcommands.ConsoleCommand;
 import basemod.interfaces.EditKeywordsSubscriber;
 import basemod.interfaces.EditStringsSubscriber;
 import basemod.interfaces.PostInitializeSubscriber;
-import saythespiremod.util.GeneralUtils;
-import saythespiremod.util.KeywordInfo;
-import saythespiremod.util.TextureLoader;
+import speakthespiremod.util.GeneralUtils;
+import speakthespiremod.util.KeywordInfo;
+import speakthespiremod.util.TextureLoader;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
@@ -27,7 +27,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.*;
 
 @SpireInitializer
-public class SayTheSpireMod implements
+public class SpeakTheSpireMod implements
         EditStringsSubscriber,
         EditKeywordsSubscriber,
         PostInitializeSubscriber {
@@ -37,7 +37,7 @@ public class SayTheSpireMod implements
         loadModInfo();
     }
     public static final Logger logger = LogManager.getLogger(modID); // Used to output to the console.
-    private static final String resourcesFolder = "saythespiremod";
+    private static final String resourcesFolder = "speakthespiremod";
 
     // This is used to prefix the IDs of various objects like cards and relics,
     // to avoid conflicts between different mods using the same name for things.
@@ -48,15 +48,15 @@ public class SayTheSpireMod implements
     // This will be called by ModTheSpire because of the @SpireInitializer
     // annotation at the top of the class.
     public static void initialize() {
-        new SayTheSpireMod();
+        new SpeakTheSpireMod();
     }
 
-    public SayTheSpireMod() {
+    public SpeakTheSpireMod() {
         BaseMod.subscribe(this); // This will make BaseMod trigger all the subscribers at their appropriate
                                  // times.
         logger.info(modID + " subscribed to BaseMod.");
         SimpleServer server = new SimpleServer(logger);
-        SayTheSpireApi.setupRoutes(server);
+        SpeakTheSpireApi.setupRoutes(server);
         server.start();
     }
 
@@ -177,7 +177,7 @@ public class SayTheSpireMod implements
                 return false;
             Set<String> initializers = annotationDB.getAnnotationIndex().getOrDefault(SpireInitializer.class.getName(),
                     Collections.emptySet());
-            return initializers.contains(SayTheSpireMod.class.getName());
+            return initializers.contains(SpeakTheSpireMod.class.getName());
         }).findFirst();
         if (infos.isPresent()) {
             info = infos.get();

@@ -1,13 +1,14 @@
-# Say the Spire
+# Speak the Spire
 
-> This is the mod portion of the Slay the Spire voice command mod "Say the
+> This is the mod portion of the Slay the Spire voice command mod "Speak the
 > Spire". See
-> [say-the-spire-talon](https://github.com/brollin/say-the-spire-talon) for the
-> Talon portion.
+> [speak-the-spire-talon](https://github.com/brollin/speak-the-spire-talon) for
+> the Talon portion.
 
 ## Installation, how to use, etc.
 
-Check the [say-the-spire-talon](https://github.com/brollin/say-the-spire-talon)
+Check the
+[speak-the-spire-talon](https://github.com/brollin/speak-the-spire-talon)
 repository for everything you need.
 
 ## Contributing

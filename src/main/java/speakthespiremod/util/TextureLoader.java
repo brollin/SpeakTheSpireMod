@@ -1,4 +1,4 @@
-package saythespiremod.util;
+package speakthespiremod.util;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.megacrit.cardcrawl.cards.AbstractCard;
 
-import static saythespiremod.SayTheSpireMod.*;
+import static speakthespiremod.SpeakTheSpireMod.*;
 
 import java.util.HashMap;
 import java.util.Locale;

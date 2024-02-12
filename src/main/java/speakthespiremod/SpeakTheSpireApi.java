@@ -1,4 +1,4 @@
-package saythespiremod;
+package speakthespiremod;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -6,8 +6,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
+import com.megacrit.cardcrawl.actions.utility.SFXAction;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.helpers.Hitbox;
@@ -34,19 +36,19 @@ import com.megacrit.cardcrawl.ui.buttons.SkipCardButton;
 import com.megacrit.cardcrawl.ui.panels.PotionPopUp;
 
 import basemod.ReflectionHacks;
-import saythespiremod.serializers.HitboxSerializer;
-import saythespiremod.serializers.MonsterSerializer;
-import saythespiremod.serializers.PlayerSerializer;
-import saythespiremod.serializers.PotionSerializer;
-import saythespiremod.serializers.RelicSerializer;
-import saythespiremod.serializers.RewardSerializer;
-import saythespiremod.serializers.ShopScreenSerializer;
+import speakthespiremod.serializers.HitboxSerializer;
+import speakthespiremod.serializers.MonsterSerializer;
+import speakthespiremod.serializers.PlayerSerializer;
+import speakthespiremod.serializers.PotionSerializer;
+import speakthespiremod.serializers.RelicSerializer;
+import speakthespiremod.serializers.RewardSerializer;
+import speakthespiremod.serializers.ShopScreenSerializer;
 
-public class SayTheSpireApi {
+public class SpeakTheSpireApi {
     public static void setupRoutes(SimpleServer server) {
         server.createGetEndpoint("/player", (Map<String, List<String>> requestParameters) -> {
             JsonValue playerJson = PlayerSerializer.toJson(AbstractDungeon.player);
-            SayTheSpireMod.logger.debug("player json: " + playerJson.toJson(OutputType.json));
+            SpeakTheSpireMod.logger.debug("player json: " + playerJson.toJson(OutputType.json));
             return playerJson.toJson(OutputType.json);
         });
 
@@ -55,7 +57,7 @@ public class SayTheSpireApi {
             for (AbstractMonster monster : AbstractDungeon.getCurrRoom().monsters.monsters) {
                 monstersJson.addChild(MonsterSerializer.toJson(monster));
             }
-            SayTheSpireMod.logger.debug("monster json: " + monstersJson.toJson(OutputType.json));
+            SpeakTheSpireMod.logger.debug("monster json: " + monstersJson.toJson(OutputType.json));
             return monstersJson.toJson(OutputType.json);
         });
 
@@ -64,7 +66,7 @@ public class SayTheSpireApi {
             for (AbstractPotion potion : AbstractDungeon.player.potions) {
                 potionsJson.addChild(PotionSerializer.toJson(potion));
             }
-            SayTheSpireMod.logger.debug("potion json: " + potionsJson.toJson(OutputType.json));
+            SpeakTheSpireMod.logger.debug("potion json: " + potionsJson.toJson(OutputType.json));
             return potionsJson.toJson(OutputType.json);
         });
 
@@ -73,7 +75,7 @@ public class SayTheSpireApi {
             for (AbstractRelic relic : AbstractDungeon.player.relics) {
                 relicsJson.addChild(RelicSerializer.toJson(relic));
             }
-            SayTheSpireMod.logger.debug("relic json: " + relicsJson.toJson(OutputType.json));
+            SpeakTheSpireMod.logger.debug("relic json: " + relicsJson.toJson(OutputType.json));
             return relicsJson.toJson(OutputType.json);
         });
 
@@ -82,7 +84,7 @@ public class SayTheSpireApi {
             for (RewardItem reward : AbstractDungeon.combatRewardScreen.rewards) {
                 rewardsJson.addChild(RewardSerializer.toJson(reward));
             }
-            SayTheSpireMod.logger.debug("reward json: " + rewardsJson.toJson(OutputType.json));
+            SpeakTheSpireMod.logger.debug("reward json: " + rewardsJson.toJson(OutputType.json));
             return rewardsJson.toJson(OutputType.json);
         });
 
@@ -91,7 +93,7 @@ public class SayTheSpireApi {
             for (AbstractRelic bossRelic : AbstractDungeon.bossRelicScreen.relics) {
                 bossRelicsJson.addChild(RelicSerializer.toJson(bossRelic));
             }
-            SayTheSpireMod.logger.debug("bossRelic json: " + bossRelicsJson.toJson(OutputType.json));
+            SpeakTheSpireMod.logger.debug("bossRelic json: " + bossRelicsJson.toJson(OutputType.json));
             return bossRelicsJson.toJson(OutputType.json);
         });
 
@@ -103,7 +105,7 @@ public class SayTheSpireApi {
                 screenJson.addChild("CardCrawlGame.mainMenuScreen.screen",
                         new JsonValue(CardCrawlGame.mainMenuScreen.screen.name()));
 
-            SayTheSpireMod.logger.debug("screen json: " + screenJson.toJson(OutputType.json));
+            SpeakTheSpireMod.logger.debug("screen json: " + screenJson.toJson(OutputType.json));
             return screenJson.toJson(OutputType.json);
         });
 
@@ -118,20 +120,20 @@ public class SayTheSpireApi {
             potionUiJson.addChild("topButton", HitboxSerializer.toJson(topHitbox));
             potionUiJson.addChild("bottomButton", HitboxSerializer.toJson(bottomHitbox));
 
-            SayTheSpireMod.logger.debug("potionUi json: " + potionUiJson.toJson(OutputType.json));
+            SpeakTheSpireMod.logger.debug("potionUi json: " + potionUiJson.toJson(OutputType.json));
             return potionUiJson.toJson(OutputType.json);
         });
 
         server.createGetEndpoint("/shop", (Map<String, List<String>> requestParameters) -> {
             JsonValue shopJson = ShopScreenSerializer.toJson(AbstractDungeon.shopScreen);
-            SayTheSpireMod.logger.debug("shop json: " + shopJson.toJson(OutputType.json));
+            SpeakTheSpireMod.logger.debug("shop json: " + shopJson.toJson(OutputType.json));
             return shopJson.toJson(OutputType.json);
         });
 
         server.createPostEndpoint("/navigate", (Map<String, List<String>> requestParameters) -> {
             String navItem = requestParameters.get("item").get(0);
 
-            SayTheSpireMod.logger.debug("Navigating to " + navItem);
+            SpeakTheSpireMod.logger.debug("Navigating to " + navItem);
 
             if (CardCrawlGame.mode == CardCrawlGame.GameMode.CHAR_SELECT) {
                 if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.MAIN_MENU) {
@@ -324,6 +326,17 @@ public class SayTheSpireApi {
                     return clickOverlayProceedButton();
                 } else if (navItem.equals("cancel") || navItem.equals("return")) {
                     return clickOverlayCancelButton();
+                }
+            }
+
+            if (navItem.equals("caw")) {
+                int roll = MathUtils.random(2);
+                if (roll == 0) {
+                    AbstractDungeon.actionManager.addToBottom(new SFXAction("VO_CULTIST_1A"));
+                } else if (roll == 1) {
+                    AbstractDungeon.actionManager.addToBottom(new SFXAction("VO_CULTIST_1B"));
+                } else {
+                    AbstractDungeon.actionManager.addToBottom(new SFXAction("VO_CULTIST_1C"));
                 }
             }
 

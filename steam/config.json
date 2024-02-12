@@ -1,7 +1,7 @@
 {
-  "title": "Say the Spire",
-  "description": "Voice commands for Slay the Spire",
+  "title": "Speak the Spire",
+  "description": "Voice commands for Slay the Spire! To install, follow the instructions here: https://github.com/brollin/speak-the-spire-talon/blob/main/README.md",
   "visibility": "public",
-  "changeNote": "v0.1.0: beta release",
-  "tags": ["voice", "voice commands", "speech", "talon"]
+  "changeNote": "v0.2.0: Renamed from Say the Spire to Speak the Spire.",
+  "tags": ["voice", "voice commands", "speech", "utility"]
 }
