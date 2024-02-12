@@ -132,6 +132,11 @@ public class SpeakTheSpireApi {
 
         server.createPostEndpoint("/navigate", (Map<String, List<String>> requestParameters) -> {
             String navItem = requestParameters.get("item").get(0);
+            String numericValueString = requestParameters.get("numericValue").get(0);
+            int numericValue = -1;
+            if (numericValueString != null) {
+                numericValue = Integer.parseInt(numericValueString);
+            }
 
             SpeakTheSpireMod.logger.debug("Navigating to " + navItem);
 
@@ -160,11 +165,31 @@ public class SpeakTheSpireApi {
                         CardCrawlGame.mainMenuScreen.charSelectScreen.confirmButton.hb.clicked = true;
                         return "";
                     } else if (navItem.equals("ascension")) {
-                        CardCrawlGame.mainMenuScreen.charSelectScreen.isAscensionMode = !CardCrawlGame.mainMenuScreen.charSelectScreen.isAscensionMode;
+                        CharacterOption selectedOption = null;
+                        for (CharacterOption option : CardCrawlGame.mainMenuScreen.charSelectScreen.options) {
+                            if (option.selected) {
+                                selectedOption = option;
+                                break;
+                            }
+                        }
+                        if (selectedOption == null) {
+                            return "No character selected";
+                        }
+                        if (numericValue >= 0) {
+                            // ascension level specified so set it
+                            CardCrawlGame.mainMenuScreen.charSelectScreen.isAscensionMode = true;
+                            int maxAscensionLevel = ReflectionHacks.getPrivate(selectedOption, CharacterOption.class,
+                                    "maxAscensionLevel");
+                            if (numericValue >= 0) {
+                                CardCrawlGame.mainMenuScreen.charSelectScreen.ascensionLevel = Math.min(numericValue,
+                                        maxAscensionLevel);
+                            }
+                        } else {
+                            // no number specified so toggle ascension mode
+                            CardCrawlGame.mainMenuScreen.charSelectScreen.isAscensionMode = !CardCrawlGame.mainMenuScreen.charSelectScreen.isAscensionMode;
+                        }
                         return "";
                     }
-                    // TODO: set ascension level
-                    // TODO: set seed
 
                     for (CharacterOption option : CardCrawlGame.mainMenuScreen.charSelectScreen.options) {
                         if (option.name.toLowerCase().contains(navItem)) {
