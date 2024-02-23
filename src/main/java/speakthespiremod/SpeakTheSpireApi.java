@@ -19,6 +19,7 @@ import com.megacrit.cardcrawl.relics.AbstractRelic;
 import com.megacrit.cardcrawl.rewards.RewardItem;
 import com.megacrit.cardcrawl.screens.CardRewardScreen;
 import com.megacrit.cardcrawl.screens.GameOverScreen;
+import com.megacrit.cardcrawl.screens.SingleCardViewPopup;
 import com.megacrit.cardcrawl.screens.charSelect.CharacterOption;
 import com.megacrit.cardcrawl.screens.mainMenu.MainMenuScreen;
 import com.megacrit.cardcrawl.screens.mainMenu.MenuButton;
@@ -140,6 +141,31 @@ public class SpeakTheSpireApi {
 
             SpeakTheSpireMod.logger.debug("Navigating to " + navItem);
 
+            if (CardCrawlGame.cardPopup.isOpen) {
+                if (navItem.equals("viewUpgrade")) {
+                    Hitbox upgradeHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
+                            "upgradeHb");
+                    upgradeHb.clicked = true;
+                    return "";
+                } else if (navItem.equals("betaArt")) {
+                    Hitbox betaArtHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
+                            "betaArtHb");
+                    betaArtHb.clicked = true;
+                    return "";
+                } else if (navItem.equals("next")) {
+                    Hitbox nextHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
+                            "nextHb");
+                    nextHb.clicked = true;
+                    return "";
+                } else if (navItem.equals("previous")) {
+                    Hitbox prevHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
+                            "prevHb");
+                    prevHb.clicked = true;
+                    return "";
+                }
+            }
+
+            // TODO: factor each branch into its own method
             if (CardCrawlGame.mode == CardCrawlGame.GameMode.CHAR_SELECT) {
                 if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.MAIN_MENU) {
                     if (navItemToClickResult.containsKey(navItem)) {
