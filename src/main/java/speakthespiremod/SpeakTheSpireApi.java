@@ -26,6 +26,7 @@ import com.megacrit.cardcrawl.screens.mainMenu.MenuButton;
 import com.megacrit.cardcrawl.screens.options.AbandonRunButton;
 import com.megacrit.cardcrawl.screens.options.ExitGameButton;
 import com.megacrit.cardcrawl.screens.options.OptionsPanel;
+import com.megacrit.cardcrawl.screens.runHistory.RunHistoryScreen;
 import com.megacrit.cardcrawl.screens.select.HandCardSelectScreen;
 import com.megacrit.cardcrawl.ui.buttons.CancelButton;
 import com.megacrit.cardcrawl.ui.buttons.CardSelectConfirmButton;
@@ -166,7 +167,49 @@ public class SpeakTheSpireApi {
             }
 
             // TODO: factor each branch into its own method
-            if (CardCrawlGame.mode == CardCrawlGame.GameMode.CHAR_SELECT) {
+            if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.RUN_HISTORY) {
+                if (navItem.equals("next")) {
+                    Hitbox nextHb = ReflectionHacks.getPrivate(CardCrawlGame.mainMenuScreen.runHistoryScreen,
+                            RunHistoryScreen.class,
+                            "nextHb");
+                    nextHb.clicked = true;
+                    return "";
+                } else if (navItem.equals("previous")) {
+                    Hitbox prevHb = ReflectionHacks.getPrivate(CardCrawlGame.mainMenuScreen.runHistoryScreen,
+                            RunHistoryScreen.class,
+                            "prevHb");
+                    prevHb.clicked = true;
+                    return "";
+                } else if (navItem.equals("return") || navItem.equals("back")) {
+                    CardCrawlGame.mainMenuScreen.runHistoryScreen.button.hb.clicked = true;
+                    return "";
+                }
+            } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.LEADERBOARD) {
+                if (navItem.equals("return") || navItem.equals("back")) {
+                    CardCrawlGame.mainMenuScreen.leaderboardsScreen.button.hb.clicked = true;
+                    return "";
+                }
+            } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.STATS) {
+                if (navItem.equals("return") || navItem.equals("back")) {
+                    CardCrawlGame.mainMenuScreen.statsScreen.button.hb.clicked = true;
+                    return "";
+                }
+            } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.CARD_LIBRARY) {
+                if (navItem.equals("return") || navItem.equals("back")) {
+                    CardCrawlGame.mainMenuScreen.cardLibraryScreen.button.hb.clicked = true;
+                    return "";
+                }
+            } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.RELIC_VIEW) {
+                if (navItem.equals("return") || navItem.equals("back")) {
+                    CardCrawlGame.mainMenuScreen.relicScreen.button.hb.clicked = true;
+                    return "";
+                }
+            } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.POTION_VIEW) {
+                if (navItem.equals("return") || navItem.equals("back")) {
+                    CardCrawlGame.mainMenuScreen.potionScreen.button.hb.clicked = true;
+                    return "";
+                }
+            } else if (CardCrawlGame.mode == CardCrawlGame.GameMode.CHAR_SELECT) {
                 if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.MAIN_MENU) {
                     if (navItemToClickResult.containsKey(navItem)) {
                         clickMainMenuButton(navItemToClickResult.get(navItem));
@@ -222,11 +265,6 @@ public class SpeakTheSpireApi {
                             option.hb.clicked = true;
                             return "";
                         }
-                    }
-                } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.RUN_HISTORY) {
-                    if (navItem.equals("return") || navItem.equals("back")) {
-                        CardCrawlGame.mainMenuScreen.runHistoryScreen.button.hb.clicked = true;
-                        return "";
                     }
                 }
             } else if (CardCrawlGame.mode == CardCrawlGame.GameMode.GAMEPLAY) {
