@@ -104,6 +104,8 @@ public class SpeakTheSpireApi {
 
         server.createGetEndpoint("/screen", (Map<String, List<String>> requestParameters) -> {
             JsonValue screenJson = new JsonValue(JsonValue.ValueType.object);
+            if (CardCrawlGame.mode != null)
+                screenJson.addChild("CardCrawlGame.mode", new JsonValue(CardCrawlGame.mode.name()));
             if (AbstractDungeon.screen != null)
                 screenJson.addChild("AbstractDungeon.screen", new JsonValue(AbstractDungeon.screen.name()));
             if (CardCrawlGame.mainMenuScreen.screen != null)
@@ -159,31 +161,30 @@ public class SpeakTheSpireApi {
                 }
             }
 
-            // Handle various main menu screens
-            if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.CARD_LIBRARY) {
-                return handleCardLibraryScreenNavigation(navItem);
-            } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.RELIC_VIEW) {
-                return handleRelicViewScreenNavigation(navItem);
-            } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.POTION_VIEW) {
-                return handlePotionViewScreenNavigation(navItem);
-            } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.STATS) {
-                return handleCharacterStatsScreenNavigation(navItem);
-            } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.LEADERBOARD) {
-                return handleLeaderboardScreenNavigation(navItem);
-            } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.RUN_HISTORY) {
-                return handleRunHistoryScreenNavigation(navItem);
-            } else if (CardCrawlGame.mode == CardCrawlGame.GameMode.CHAR_SELECT) {
-                // Handle more main menu screens that occur in char select mode
+            if (CardCrawlGame.mode == CardCrawlGame.GameMode.CHAR_SELECT) {
+                // Handle main menu screens that occur in char select mode
                 if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.MAIN_MENU) {
                     return handleMainMenuScreenNavigation(navItem);
                 } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.PANEL_MENU) {
                     return handlePanelMenuScreenNavigation(navItem);
                 } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.CHAR_SELECT) {
                     return handleCharacterSelectScreenNavigation(navItem, numericValue);
+                } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.CARD_LIBRARY) {
+                    return handleCardLibraryScreenNavigation(navItem);
+                } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.RELIC_VIEW) {
+                    return handleRelicViewScreenNavigation(navItem);
+                } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.POTION_VIEW) {
+                    return handlePotionViewScreenNavigation(navItem);
+                } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.STATS) {
+                    return handleCharacterStatsScreenNavigation(navItem);
+                } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.LEADERBOARD) {
+                    return handleLeaderboardScreenNavigation(navItem);
+                } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.RUN_HISTORY) {
+                    return handleRunHistoryScreenNavigation(navItem);
                 }
             } else if (CardCrawlGame.mode == CardCrawlGame.GameMode.GAMEPLAY) {
                 String result = null;
-                // Handle various gameplay mode screens
+                // Handle various screens that occur in gameplay mode
                 if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.SETTINGS) {
                     result = handleSettingsScreenNavigation(navItem);
                 } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.VICTORY
@@ -205,12 +206,10 @@ public class SpeakTheSpireApi {
                         // TODO: label cards
                         // TODO: card voice commands
                     } else if (AbstractDungeon.getCurrRoom().event instanceof GremlinWheelGame) {
-                        // TODO: not working...
                         if (navItem.equals("proceed")) {
                             Hitbox hb = ReflectionHacks.getPrivate(AbstractDungeon.getCurrRoom().event,
                                     GremlinWheelGame.class, "buttonHb");
-                            hb.clicked = true;
-                            return "";
+                            return talonClickAction(hb);
                         }
                     }
                 }
@@ -563,6 +562,14 @@ public class SpeakTheSpireApi {
                 break;
             }
         }
+    }
+
+    private static String talonClickAction(Hitbox hb) {
+        JsonValue clickAction = new JsonValue(JsonValue.ValueType.object);
+        clickAction.addChild("type", new JsonValue("click"));
+        clickAction.addChild("x", new JsonValue(hb.cX));
+        clickAction.addChild("y", new JsonValue(hb.cY));
+        return clickAction.toJson(OutputType.json);
     }
 
     // TODO: move this to a better place
