@@ -9,9 +9,12 @@ import java.util.Map;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
+import com.megacrit.cardcrawl.actions.animations.TalkAction;
 import com.megacrit.cardcrawl.actions.utility.SFXAction;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.events.shrines.GremlinMatchGame;
+import com.megacrit.cardcrawl.events.shrines.GremlinWheelGame;
 import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
@@ -145,6 +148,7 @@ public class SpeakTheSpireApi {
             if (navItem.equals("caw")) {
                 String[] soundEffects = { "VO_CULTIST_1A", "VO_CULTIST_1B", "VO_CULTIST_1C" };
                 AbstractDungeon.actionManager.addToBottom(new SFXAction(soundEffects[MathUtils.random(2)]));
+                AbstractDungeon.actionManager.addToBottom(new TalkAction(true, "CAW CAW!!", 1.0F, 2.0F));
                 return "";
             }
 
@@ -193,6 +197,22 @@ public class SpeakTheSpireApi {
                     result = handleCardRewardScreenNavigation(navItem);
                 } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.COMBAT_REWARD) {
                     result = handleCombatRewardScreen(navItem);
+                }
+
+                // Handle event screens
+                if (AbstractDungeon.getCurrRoom() != null && AbstractDungeon.getCurrRoom().event != null) {
+                    if (AbstractDungeon.getCurrRoom().event instanceof GremlinMatchGame) {
+                        // TODO: label cards
+                        // TODO: card voice commands
+                    } else if (AbstractDungeon.getCurrRoom().event instanceof GremlinWheelGame) {
+                        // TODO: not working...
+                        if (navItem.equals("proceed")) {
+                            Hitbox hb = ReflectionHacks.getPrivate(AbstractDungeon.getCurrRoom().event,
+                                    GremlinWheelGame.class, "buttonHb");
+                            hb.clicked = true;
+                            return "";
+                        }
+                    }
                 }
 
                 if (result != null) {
