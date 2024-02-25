@@ -9,9 +9,13 @@ import java.util.Map;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
+import com.megacrit.cardcrawl.actions.animations.TalkAction;
 import com.megacrit.cardcrawl.actions.utility.SFXAction;
+import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
+import com.megacrit.cardcrawl.events.shrines.GremlinMatchGame;
+import com.megacrit.cardcrawl.events.shrines.GremlinWheelGame;
 import com.megacrit.cardcrawl.helpers.Hitbox;
 import com.megacrit.cardcrawl.monsters.AbstractMonster;
 import com.megacrit.cardcrawl.potions.AbstractPotion;
@@ -101,6 +105,8 @@ public class SpeakTheSpireApi {
 
         server.createGetEndpoint("/screen", (Map<String, List<String>> requestParameters) -> {
             JsonValue screenJson = new JsonValue(JsonValue.ValueType.object);
+            if (CardCrawlGame.mode != null)
+                screenJson.addChild("CardCrawlGame.mode", new JsonValue(CardCrawlGame.mode.name()));
             if (AbstractDungeon.screen != null)
                 screenJson.addChild("AbstractDungeon.screen", new JsonValue(AbstractDungeon.screen.name()));
             if (CardCrawlGame.mainMenuScreen.screen != null)
@@ -142,86 +148,86 @@ public class SpeakTheSpireApi {
 
             SpeakTheSpireMod.logger.debug("Navigating to " + navItem);
 
-            if (CardCrawlGame.cardPopup.isOpen) {
-                if (navItem.equals("viewUpgrade")) {
-                    Hitbox upgradeHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
-                            "upgradeHb");
-                    upgradeHb.clicked = true;
-                    return "";
-                } else if (navItem.equals("betaArt")) {
-                    Hitbox betaArtHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
-                            "betaArtHb");
-                    betaArtHb.clicked = true;
-                    return "";
-                } else if (navItem.equals("next")) {
-                    Hitbox nextHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
-                            "nextHb");
-                    nextHb.clicked = true;
-                    return "";
-                } else if (navItem.equals("previous")) {
-                    Hitbox prevHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
-                            "prevHb");
-                    prevHb.clicked = true;
-                    return "";
-                }
-            }
-
             if (navItem.equals("caw")) {
-                int roll = MathUtils.random(2);
-                if (roll == 0) {
-                    AbstractDungeon.actionManager.addToBottom(new SFXAction("VO_CULTIST_1A"));
-                } else if (roll == 1) {
-                    AbstractDungeon.actionManager.addToBottom(new SFXAction("VO_CULTIST_1B"));
-                } else {
-                    AbstractDungeon.actionManager.addToBottom(new SFXAction("VO_CULTIST_1C"));
-                }
+                String[] soundEffects = { "VO_CULTIST_1A", "VO_CULTIST_1B", "VO_CULTIST_1C" };
+                AbstractDungeon.actionManager.addToBottom(new SFXAction(soundEffects[MathUtils.random(2)]));
+                AbstractDungeon.actionManager.addToBottom(new TalkAction(true, "CAW CAW!!", 1.0F, 2.0F));
                 return "";
             }
 
-            // Handle various main menu screens
-            if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.CARD_LIBRARY) {
-                return handleCardLibraryScreenNavigation(navItem);
-            } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.RELIC_VIEW) {
-                return handleRelicViewScreenNavigation(navItem);
-            } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.POTION_VIEW) {
-                return handlePotionViewScreenNavigation(navItem);
-            } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.STATS) {
-                return handleCharacterStatsScreenNavigation(navItem);
-            } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.LEADERBOARD) {
-                return handleLeaderboardScreenNavigation(navItem);
-            } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.RUN_HISTORY) {
-                return handleRunHistoryScreenNavigation(navItem);
-            } else if (CardCrawlGame.mode == CardCrawlGame.GameMode.CHAR_SELECT) {
-                // Handle more main menu screens that occur in char select mode
+            if (CardCrawlGame.cardPopup.isOpen) {
+                String result = handleCardPopupNavigation(navItem);
+                if (result != null) {
+                    return result;
+                }
+            }
+
+            if (CardCrawlGame.mode == CardCrawlGame.GameMode.CHAR_SELECT) {
+                // Handle main menu screens that occur in char select mode
                 if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.MAIN_MENU) {
                     return handleMainMenuScreenNavigation(navItem);
                 } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.PANEL_MENU) {
                     return handlePanelMenuScreenNavigation(navItem);
                 } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.CHAR_SELECT) {
                     return handleCharacterSelectScreenNavigation(navItem, numericValue);
+                } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.CARD_LIBRARY) {
+                    return handleCardLibraryScreenNavigation(navItem);
+                } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.RELIC_VIEW) {
+                    return handleRelicViewScreenNavigation(navItem);
+                } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.POTION_VIEW) {
+                    return handlePotionViewScreenNavigation(navItem);
+                } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.STATS) {
+                    return handleCharacterStatsScreenNavigation(navItem);
+                } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.LEADERBOARD) {
+                    return handleLeaderboardScreenNavigation(navItem);
+                } else if (CardCrawlGame.mainMenuScreen.screen == MainMenuScreen.CurScreen.RUN_HISTORY) {
+                    return handleRunHistoryScreenNavigation(navItem);
                 }
             } else if (CardCrawlGame.mode == CardCrawlGame.GameMode.GAMEPLAY) {
-                // Handle various gameplay mode screens
+                String result = null;
+                // Handle various screens that occur in gameplay mode
                 if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.SETTINGS) {
-                    return handleSettingsScreenNavigation(navItem);
+                    result = handleSettingsScreenNavigation(navItem);
                 } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.VICTORY
                         || AbstractDungeon.screen == AbstractDungeon.CurrentScreen.DEATH) {
-                    return handleGameOverScreenNavigation(navItem);
+                    result = handleGameOverScreenNavigation(navItem);
                 } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.HAND_SELECT) {
-                    return handleHandSelectScreen(navItem);
+                    result = handleHandSelectScreen(navItem);
                 } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.GRID) {
-                    return handleGridSelectScreenNavigation(navItem);
+                    result = handleGridSelectScreenNavigation(navItem);
                 } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.CARD_REWARD) {
-                    return handleCardRewardScreenNavigation(navItem);
+                    result = handleCardRewardScreenNavigation(navItem);
                 } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.COMBAT_REWARD) {
-                    return handleCombatRewardScreen(navItem);
+                    result = handleCombatRewardScreen(navItem);
+                }
+
+                // Handle event screens
+                if (AbstractDungeon.getCurrRoom() != null && AbstractDungeon.getCurrRoom().event != null) {
+                    if (AbstractDungeon.getCurrRoom().event instanceof GremlinMatchGame) {
+                        if (navItem.equals("flip")) {
+                            if (!matchAndKeepCardNumberToCardIndex.containsKey(numericValue)) {
+                                return "Invalid card number";
+                            }
+                            int cardIndex = matchAndKeepCardNumberToCardIndex.get(numericValue);
+                            CardGroup cards = ReflectionHacks.getPrivate(AbstractDungeon.getCurrRoom().event,
+                                    GremlinMatchGame.class, "cards");
+                            return talonClickAction(cards.group.get(cardIndex).hb);
+                        }
+                    } else if (AbstractDungeon.getCurrRoom().event instanceof GremlinWheelGame) {
+                        if (navItem.equals("proceed")) {
+                            Hitbox hb = ReflectionHacks.getPrivate(AbstractDungeon.getCurrRoom().event,
+                                    GremlinWheelGame.class, "buttonHb");
+                            return talonClickAction(hb);
+                        }
+                    }
+                }
+
+                if (result != null) {
+                    return result;
                 }
 
                 // Handle miscellaneous gameplay commands
-                if (navItem.equals("release")) {
-                    AbstractDungeon.player.isInKeyboardMode = false;
-                    return "";
-                } else if (navItem.equals("proceed") || navItem.equals("skip")) {
+                if (navItem.equals("proceed") || navItem.equals("skip")) {
                     return clickOverlayProceedButton();
                 } else if (navItem.equals("cancel") || navItem.equals("return")) {
                     return clickOverlayCancelButton();
@@ -230,6 +236,29 @@ public class SpeakTheSpireApi {
 
             return "Did not find navigation item";
         });
+    }
+
+    private static String handleCardPopupNavigation(String navItem) {
+        if (navItem.equals("viewUpgrade")) {
+            Hitbox upgradeHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
+                    "upgradeHb");
+            upgradeHb.clicked = true;
+            return "";
+        } else if (navItem.equals("betaArt")) {
+            Hitbox betaArtHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
+                    "betaArtHb");
+            betaArtHb.clicked = true;
+            return "";
+        } else if (navItem.equals("next")) {
+            Hitbox nextHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class, "nextHb");
+            nextHb.clicked = true;
+            return "";
+        } else if (navItem.equals("previous")) {
+            Hitbox prevHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class, "prevHb");
+            prevHb.clicked = true;
+            return "";
+        }
+        return null;
     }
 
     private static String handleCardLibraryScreenNavigation(String navItem) {
@@ -350,7 +379,7 @@ public class SpeakTheSpireApi {
             }
             return "No known popup showing with no button";
         }
-        return "Did not find navigation item";
+        return null;
     }
 
     private static String handleCharacterSelectScreenNavigation(String navItem, int numericValue) {
@@ -408,7 +437,7 @@ public class SpeakTheSpireApi {
             returnButton.hb.clicked = true;
             return "";
         }
-        return "Did not find navigation item";
+        return null;
     }
 
     private static String handleHandSelectScreen(String navItem) {
@@ -437,7 +466,7 @@ public class SpeakTheSpireApi {
             return "";
         }
 
-        return "Did not find navigation item";
+        return null;
     }
 
     private static String handleGridSelectScreenNavigation(String navItem) {
@@ -465,7 +494,7 @@ public class SpeakTheSpireApi {
             return "";
         }
 
-        return "Did not find navigation item";
+        return null;
     }
 
     private static String handleCardRewardScreenNavigation(String navItem) {
@@ -498,14 +527,14 @@ public class SpeakTheSpireApi {
             return "";
         }
 
-        return "Did not find navigation item";
+        return null;
     }
 
     private static String handleCombatRewardScreen(String navItem) {
         if (navItem.equals("skip") || navItem.equals("proceed")) {
             return clickOverlayProceedButton();
         }
-        return "Did not find navigation item";
+        return null;
     }
 
     private static String clickOverlayProceedButton() {
@@ -540,11 +569,20 @@ public class SpeakTheSpireApi {
         }
     }
 
+    private static String talonClickAction(Hitbox hb) {
+        JsonValue clickAction = new JsonValue(JsonValue.ValueType.object);
+        clickAction.addChild("type", new JsonValue("click"));
+        clickAction.addChild("x", new JsonValue(hb.cX));
+        clickAction.addChild("y", new JsonValue(hb.cY));
+        return clickAction.toJson(OutputType.json);
+    }
+
     // TODO: move this to a better place
     static final List<String> gameOverScreenContinueCommands = new ArrayList<>(
             Arrays.asList("continue", "proceed", "mainMenu"));
     static final Map<String, MenuButton.ClickResult> navItemToClickResult = new HashMap<>();
     static final Map<String, Integer> navItemToPanelIndex = new HashMap<>();
+    static final Map<Integer, Integer> matchAndKeepCardNumberToCardIndex = new HashMap<>();
     static {
         navItemToClickResult.put("play", MenuButton.ClickResult.PLAY);
         navItemToClickResult.put("resume", MenuButton.ClickResult.RESUME_GAME);
@@ -569,5 +607,18 @@ public class SpeakTheSpireApi {
         navItemToPanelIndex.put("gameSettings", 0);
         navItemToPanelIndex.put("inputSettings", 1);
         navItemToPanelIndex.put("credits", 2);
+
+        matchAndKeepCardNumberToCardIndex.put(1, 0);
+        matchAndKeepCardNumberToCardIndex.put(6, 1);
+        matchAndKeepCardNumberToCardIndex.put(11, 2);
+        matchAndKeepCardNumberToCardIndex.put(4, 3);
+        matchAndKeepCardNumberToCardIndex.put(5, 4);
+        matchAndKeepCardNumberToCardIndex.put(10, 5);
+        matchAndKeepCardNumberToCardIndex.put(3, 6);
+        matchAndKeepCardNumberToCardIndex.put(8, 7);
+        matchAndKeepCardNumberToCardIndex.put(9, 8);
+        matchAndKeepCardNumberToCardIndex.put(2, 9);
+        matchAndKeepCardNumberToCardIndex.put(7, 10);
+        matchAndKeepCardNumberToCardIndex.put(12, 11);
     }
 }
