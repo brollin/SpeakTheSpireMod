@@ -142,40 +142,17 @@ public class SpeakTheSpireApi {
 
             SpeakTheSpireMod.logger.debug("Navigating to " + navItem);
 
-            if (CardCrawlGame.cardPopup.isOpen) {
-                if (navItem.equals("viewUpgrade")) {
-                    Hitbox upgradeHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
-                            "upgradeHb");
-                    upgradeHb.clicked = true;
-                    return "";
-                } else if (navItem.equals("betaArt")) {
-                    Hitbox betaArtHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
-                            "betaArtHb");
-                    betaArtHb.clicked = true;
-                    return "";
-                } else if (navItem.equals("next")) {
-                    Hitbox nextHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
-                            "nextHb");
-                    nextHb.clicked = true;
-                    return "";
-                } else if (navItem.equals("previous")) {
-                    Hitbox prevHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
-                            "prevHb");
-                    prevHb.clicked = true;
-                    return "";
-                }
+            if (navItem.equals("caw")) {
+                String[] soundEffects = { "VO_CULTIST_1A", "VO_CULTIST_1B", "VO_CULTIST_1C" };
+                AbstractDungeon.actionManager.addToBottom(new SFXAction(soundEffects[MathUtils.random(2)]));
+                return "";
             }
 
-            if (navItem.equals("caw")) {
-                int roll = MathUtils.random(2);
-                if (roll == 0) {
-                    AbstractDungeon.actionManager.addToBottom(new SFXAction("VO_CULTIST_1A"));
-                } else if (roll == 1) {
-                    AbstractDungeon.actionManager.addToBottom(new SFXAction("VO_CULTIST_1B"));
-                } else {
-                    AbstractDungeon.actionManager.addToBottom(new SFXAction("VO_CULTIST_1C"));
+            if (CardCrawlGame.cardPopup.isOpen) {
+                String result = handleCardPopupNavigation(navItem);
+                if (result != null) {
+                    return result;
                 }
-                return "";
             }
 
             // Handle various main menu screens
@@ -201,20 +178,25 @@ public class SpeakTheSpireApi {
                     return handleCharacterSelectScreenNavigation(navItem, numericValue);
                 }
             } else if (CardCrawlGame.mode == CardCrawlGame.GameMode.GAMEPLAY) {
+                String result = null;
                 // Handle various gameplay mode screens
                 if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.SETTINGS) {
-                    return handleSettingsScreenNavigation(navItem);
+                    result = handleSettingsScreenNavigation(navItem);
                 } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.VICTORY
                         || AbstractDungeon.screen == AbstractDungeon.CurrentScreen.DEATH) {
-                    return handleGameOverScreenNavigation(navItem);
+                    result = handleGameOverScreenNavigation(navItem);
                 } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.HAND_SELECT) {
-                    return handleHandSelectScreen(navItem);
+                    result = handleHandSelectScreen(navItem);
                 } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.GRID) {
-                    return handleGridSelectScreenNavigation(navItem);
+                    result = handleGridSelectScreenNavigation(navItem);
                 } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.CARD_REWARD) {
-                    return handleCardRewardScreenNavigation(navItem);
+                    result = handleCardRewardScreenNavigation(navItem);
                 } else if (AbstractDungeon.screen == AbstractDungeon.CurrentScreen.COMBAT_REWARD) {
-                    return handleCombatRewardScreen(navItem);
+                    result = handleCombatRewardScreen(navItem);
+                }
+
+                if (result != null) {
+                    return result;
                 }
 
                 // Handle miscellaneous gameplay commands
@@ -230,6 +212,29 @@ public class SpeakTheSpireApi {
 
             return "Did not find navigation item";
         });
+    }
+
+    private static String handleCardPopupNavigation(String navItem) {
+        if (navItem.equals("viewUpgrade")) {
+            Hitbox upgradeHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
+                    "upgradeHb");
+            upgradeHb.clicked = true;
+            return "";
+        } else if (navItem.equals("betaArt")) {
+            Hitbox betaArtHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class,
+                    "betaArtHb");
+            betaArtHb.clicked = true;
+            return "";
+        } else if (navItem.equals("next")) {
+            Hitbox nextHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class, "nextHb");
+            nextHb.clicked = true;
+            return "";
+        } else if (navItem.equals("previous")) {
+            Hitbox prevHb = ReflectionHacks.getPrivate(CardCrawlGame.cardPopup, SingleCardViewPopup.class, "prevHb");
+            prevHb.clicked = true;
+            return "";
+        }
+        return null;
     }
 
     private static String handleCardLibraryScreenNavigation(String navItem) {
@@ -350,7 +355,7 @@ public class SpeakTheSpireApi {
             }
             return "No known popup showing with no button";
         }
-        return "Did not find navigation item";
+        return null;
     }
 
     private static String handleCharacterSelectScreenNavigation(String navItem, int numericValue) {
@@ -408,7 +413,7 @@ public class SpeakTheSpireApi {
             returnButton.hb.clicked = true;
             return "";
         }
-        return "Did not find navigation item";
+        return null;
     }
 
     private static String handleHandSelectScreen(String navItem) {
@@ -437,7 +442,7 @@ public class SpeakTheSpireApi {
             return "";
         }
 
-        return "Did not find navigation item";
+        return null;
     }
 
     private static String handleGridSelectScreenNavigation(String navItem) {
@@ -465,7 +470,7 @@ public class SpeakTheSpireApi {
             return "";
         }
 
-        return "Did not find navigation item";
+        return null;
     }
 
     private static String handleCardRewardScreenNavigation(String navItem) {
@@ -498,14 +503,14 @@ public class SpeakTheSpireApi {
             return "";
         }
 
-        return "Did not find navigation item";
+        return null;
     }
 
     private static String handleCombatRewardScreen(String navItem) {
         if (navItem.equals("skip") || navItem.equals("proceed")) {
             return clickOverlayProceedButton();
         }
-        return "Did not find navigation item";
+        return null;
     }
 
     private static String clickOverlayProceedButton() {
