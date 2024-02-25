@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.JsonWriter.OutputType;
 import com.megacrit.cardcrawl.actions.animations.TalkAction;
 import com.megacrit.cardcrawl.actions.utility.SFXAction;
+import com.megacrit.cardcrawl.cards.CardGroup;
 import com.megacrit.cardcrawl.core.CardCrawlGame;
 import com.megacrit.cardcrawl.dungeons.AbstractDungeon;
 import com.megacrit.cardcrawl.events.shrines.GremlinMatchGame;
@@ -203,8 +204,15 @@ public class SpeakTheSpireApi {
                 // Handle event screens
                 if (AbstractDungeon.getCurrRoom() != null && AbstractDungeon.getCurrRoom().event != null) {
                     if (AbstractDungeon.getCurrRoom().event instanceof GremlinMatchGame) {
-                        // TODO: label cards
-                        // TODO: card voice commands
+                        if (navItem.equals("flip")) {
+                            if (!matchAndKeepCardNumberToCardIndex.containsKey(numericValue)) {
+                                return "Invalid card number";
+                            }
+                            int cardIndex = matchAndKeepCardNumberToCardIndex.get(numericValue);
+                            CardGroup cards = ReflectionHacks.getPrivate(AbstractDungeon.getCurrRoom().event,
+                                    GremlinMatchGame.class, "cards");
+                            return talonClickAction(cards.group.get(cardIndex).hb);
+                        }
                     } else if (AbstractDungeon.getCurrRoom().event instanceof GremlinWheelGame) {
                         if (navItem.equals("proceed")) {
                             Hitbox hb = ReflectionHacks.getPrivate(AbstractDungeon.getCurrRoom().event,
@@ -219,10 +227,7 @@ public class SpeakTheSpireApi {
                 }
 
                 // Handle miscellaneous gameplay commands
-                if (navItem.equals("release")) {
-                    AbstractDungeon.player.isInKeyboardMode = false;
-                    return "";
-                } else if (navItem.equals("proceed") || navItem.equals("skip")) {
+                if (navItem.equals("proceed") || navItem.equals("skip")) {
                     return clickOverlayProceedButton();
                 } else if (navItem.equals("cancel") || navItem.equals("return")) {
                     return clickOverlayCancelButton();
@@ -577,6 +582,7 @@ public class SpeakTheSpireApi {
             Arrays.asList("continue", "proceed", "mainMenu"));
     static final Map<String, MenuButton.ClickResult> navItemToClickResult = new HashMap<>();
     static final Map<String, Integer> navItemToPanelIndex = new HashMap<>();
+    static final Map<Integer, Integer> matchAndKeepCardNumberToCardIndex = new HashMap<>();
     static {
         navItemToClickResult.put("play", MenuButton.ClickResult.PLAY);
         navItemToClickResult.put("resume", MenuButton.ClickResult.RESUME_GAME);
@@ -601,5 +607,18 @@ public class SpeakTheSpireApi {
         navItemToPanelIndex.put("gameSettings", 0);
         navItemToPanelIndex.put("inputSettings", 1);
         navItemToPanelIndex.put("credits", 2);
+
+        matchAndKeepCardNumberToCardIndex.put(1, 0);
+        matchAndKeepCardNumberToCardIndex.put(6, 1);
+        matchAndKeepCardNumberToCardIndex.put(11, 2);
+        matchAndKeepCardNumberToCardIndex.put(4, 3);
+        matchAndKeepCardNumberToCardIndex.put(5, 4);
+        matchAndKeepCardNumberToCardIndex.put(10, 5);
+        matchAndKeepCardNumberToCardIndex.put(3, 6);
+        matchAndKeepCardNumberToCardIndex.put(8, 7);
+        matchAndKeepCardNumberToCardIndex.put(9, 8);
+        matchAndKeepCardNumberToCardIndex.put(2, 9);
+        matchAndKeepCardNumberToCardIndex.put(7, 10);
+        matchAndKeepCardNumberToCardIndex.put(12, 11);
     }
 }
