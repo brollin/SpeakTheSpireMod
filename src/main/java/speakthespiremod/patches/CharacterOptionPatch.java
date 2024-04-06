@@ -10,6 +10,10 @@ public class CharacterOptionPatch {
     @SpirePatch(clz = CharacterOption.class, method = "render")
     public static class CharacterOptionRenderPatch {
         public static void Postfix(CharacterOption self, SpriteBatch sb) {
+            if (self.name.length() < 4) {
+                return;
+            }
+
             // remove the proceeding "The " from the character name and wrap in quotes
             String briefCharacterName = "\"" + self.name.substring(4) + "\"";
 
